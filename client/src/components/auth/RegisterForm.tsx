@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,40 +18,36 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
 
 export default function RegisterForm() {
+  const router = useRouter();
+
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: RegisterSchema) => {
-    console.log("Register data:", data);
-    // Handle registration (API call)
+  const onSubmit = async (data: RegisterSchema) => {
+    try {
+      const response = await apiClient.post("/api/auth/register", data);
+      if (response.status === 201) {
+        router.push("/profile");
+        toast.success("Account created successfully");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <Label>Name</Label>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name="email"

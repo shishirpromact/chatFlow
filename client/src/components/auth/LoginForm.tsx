@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchema } from "@/lib/validations/loginSchema";
@@ -7,9 +8,19 @@ import { loginSchema, LoginSchema } from "@/lib/validations/loginSchema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -18,9 +29,20 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = (data: LoginSchema) => {
-    console.log("Login data:", data);
-    // Call login API here
+  const onSubmit = async (data: LoginSchema) => {
+    try {
+      const response = await apiClient.post("/api/auth/login", data);
+      if (response.data.user.id) {
+        if (response.data.user.profileSetup) {
+          router.push("/chat");
+        } else {
+          router.push("/profile");
+        }
+        toast.success("Login successful");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

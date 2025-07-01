@@ -1,5 +1,9 @@
-import axios from 'axios';
+import axios from "axios";
+import config from "@/utils/config";
 
 const apiClient = axios.create({
-    baseURL: process.env.HOST,
-})
+  baseURL: config.BASE_URL,
+  withCredentials: true,
+});
+
+export default apiClient;

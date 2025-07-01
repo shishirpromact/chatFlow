@@ -2,16 +2,31 @@ import type { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import jwt from 'jsonwebtoken';
 import config from '@/config';
-import { compare } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcrypt';
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
+/**
+ * Creates a JWT token for a given user ID and email.
+ *
+ * @param userId - The ID of the user.
+ * @param email - The email of the user.
+ * @returns A JWT token.
+ */
 const createToken = async (userId: string, email: string) => {
   return jwt.sign({ userId, email }, config.JWT_KEY as string, {
     expiresIn: maxAge,
   });
 };
 
+/**
+ * Registers a new user.
+ *
+ * @param request - The request object.
+ * @param response - The response object.
+ * @param next - The next function.
+ * @returns A promise that resolves to the registered user.
+ */
 export const register = async (
   request: Request,
   response: Response,
@@ -25,10 +40,13 @@ export const register = async (
       return;
     }
 
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(password, salt);
+
     const user = await prisma.user.create({
       data: {
         email,
-        password,
+        password: hashedPassword,
       },
     });
 
@@ -54,6 +72,14 @@ export const register = async (
   }
 };
 
+/**
+ * Logs in a user.
+ *
+ * @param request - The request object.
+ * @param response - The response object.
+ * @param next - The next function.
+ * @returns A promise that resolves to the logged in user.
+ */
 export const login = async (
   request: Request,
   response: Response,
@@ -107,5 +133,39 @@ export const login = async (
   } catch (error) {
     console.log(error);
     response.status(500).send('Internal Server Error');
+  }
+};
+
+export const getUserInfo = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (request as any).userId || '';
+    const userData = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!userData) {
+      response.status(400).send('User not found');
+      return;
+    }
+
+    response.status(200).json({
+      message: 'User data fetched successfully',
+      user: {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        image: userData.image,
+        profileSetup: userData.profileSetup,
+      },
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
