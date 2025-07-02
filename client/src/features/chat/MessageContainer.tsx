@@ -2,6 +2,7 @@ import { useChatStore } from "@/store/chatStore";
 import { useUserStore } from "@/store/userStore";
 import React, { useEffect, useRef } from "react";
 import moment from "moment";
+import apiClient from "@/lib/api-client";
 
 function MessageContainer() {
   const user = useUserStore((state) => state.user);
@@ -10,8 +11,33 @@ function MessageContainer() {
   const selectedChatMessages = useChatStore(
     (state) => state.selectedChatMessages
   );
+  const setSelectedChatMessages = useChatStore(
+    (state) => state.setSelectedChatMessages
+  );
 
   const scrollRef = useRef<any>(null);
+
+  async function fetchMessages() {
+    try {
+      const response = await apiClient.post("/api/message/get-messages", {
+        id: selectedChatData.id,
+      });
+
+      if (response.data.messages) {
+        setSelectedChatMessages(response.data.messages);
+      }
+    } catch (error) {
+      console.log("Error fetching messages", error);
+    }
+  }
+
+  useEffect(() => {
+    if (selectedChatData.id) {
+      if (selectedChatType === "contact") {
+        fetchMessages();
+      }
+    }
+  }, [selectedChatData, selectedChatType, setSelectedChatMessages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,7 +52,9 @@ function MessageContainer() {
             : "text-right max-w-[70%]"
         }
       >
-        <div className="bg-white text-black p-2 rounded-lg">{message.content}</div>
+        <div className="bg-white text-black p-2 rounded-lg">
+          {message.content}
+        </div>
         <div className="text-xs text-gray-600">
           {moment(message.timeStamp).format("LT")}
         </div>

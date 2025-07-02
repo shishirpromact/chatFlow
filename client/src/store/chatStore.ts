@@ -5,9 +5,11 @@ interface ChatState {
   selectedChatType: any;
   selectedChatData: any;
   selectedChatMessages: any[];
+  directMessagesContacts: any[];
   setSelectedChatType: (type: any) => void;
   setSelectedChatData: (data: any) => void;
   setSelectedChatMessages: (messages: any[]) => void;
+  setDirectMessagesContacts: (contacts: any) => void;
   closeChat: () => void;
   addMessage: (message: any) => void;
 }
@@ -18,10 +20,13 @@ export const useChatStore = create<ChatState>()(
       selectedChatType: null,
       selectedChatData: null,
       selectedChatMessages: [],
+      directMessagesContacts: [],
       setSelectedChatType: (type) => set({ selectedChatType: type }),
       setSelectedChatData: (data) => set({ selectedChatData: data }),
       setSelectedChatMessages: (messages) =>
         set({ selectedChatMessages: messages }),
+      setDirectMessagesContacts: (contacts) =>
+        set({ directMessagesContacts: contacts }),
       closeChat: () =>
         set({
           selectedChatType: null,
