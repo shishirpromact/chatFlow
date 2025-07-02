@@ -12,7 +12,6 @@ export default function HomeScreen() {
   // fetch and store user info at the application start
   async function getUserInfo() {
     const response = await apiClient.get("/api/auth/user-info");
-    console.log(response.data.user);
     setUser(response.data.user);
   }
 

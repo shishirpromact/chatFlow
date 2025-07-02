@@ -17,8 +17,16 @@ import { FaPlus } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import apiClient from "@/lib/api-client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useChatStore } from "@/store/chatStore";
 
 function NewDm() {
+  const setSelectedChatType = useChatStore(
+    (state) => state.setSelectedChatType
+  );
+  const setSelectedChatData = useChatStore(
+    (state) => state.setSelectedChatData
+  );
+
   const [openNewContactModal, setOpenNewContactModal] = useState(false);
   const [searchedContacts, setSearchedContacts] = useState([]);
 
@@ -39,9 +47,12 @@ function NewDm() {
     }, 1000);
   };
 
-  const selectContact = (contact:any)=>{
+  const selectContact = (contact: any) => {
     setOpenNewContactModal(false);
-  }
+    setSelectedChatType("contact");
+    setSelectedChatData(contact);
+    setSearchedContacts([]);
+  };
 
   return (
     <>
@@ -77,7 +88,7 @@ function NewDm() {
                 <div
                   key={contact.id}
                   className="flex gap-3 items-center cursor-pointer"
-                  onClick={()=>selectContact(contact)}
+                  onClick={() => selectContact(contact)}
                 >
                   <div className="flex flex-col">
                     <span>

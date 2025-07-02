@@ -8,6 +8,7 @@ import config from '@/config';
 import authRoutes from './routes/auth.route';
 import userRoutes from './routes/user.route';
 import contactRoutes from './routes/contact.route';
+import setupSocket from './socket';
 
 const app = express();
 
@@ -31,3 +32,5 @@ app.use('/api/contact', contactRoutes);
 const server = app.listen(config.PORT, () => {
   console.log(`Server is running on port ${config.PORT}`);
 });
+
+setupSocket(server);
