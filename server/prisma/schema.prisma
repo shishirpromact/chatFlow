@@ -15,29 +15,51 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid()) @db.Uuid
-  email        String     @unique
-  password     String
-  firstName    String?
-  lastName     String?
-  image        String?
-  profileSetup Boolean    @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id              String     @id @default(uuid()) @db.Uuid
+  email           String     @unique
+  password        String
+  firstName       String?
+  lastName        String?
+  image           String?
+  profileSetup    Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
+  // Relations
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
+
+  // Channel relations
+  channels        Channel[]  @relation("ChannelMembers")
+  adminChannels   Channel[]  @relation("ChannelAdmin")
 }
 
-
 model Message {
-  id         String   @id @default(uuid()) @db.Uuid
-  senderId   String   @db.Uuid
-  recipientId String? @db.Uuid
-  content    String
-  timeStamp  DateTime @default(now())
+  id           String    @id @default(uuid()) @db.Uuid
+  senderId     String    @db.Uuid
+  recipientId  String?   @db.Uuid
+  content      String
+  timeStamp    DateTime  @default(now())
 
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
-  recipient  User?    @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  sender       User      @relation("SentMessages", fields: [senderId], references: [id])
+  recipient    User?     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+
+  channelId    String?   @db.Uuid
+  channel      Channel?  @relation("ChannelMessages", fields: [channelId], references: [id])
+}
+
+model Channel {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+
+  members    User[]     @relation("ChannelMembers")
+
+  adminId    String     @db.Uuid
+  admin      User       @relation("ChannelAdmin", fields: [adminId], references: [id])
+
+  messages   Message[]  @relation("ChannelMessages")
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 

@@ -32,6 +32,17 @@ export const useSocketChat = () => {
       }
     });
 
+    socket.on("receive-channel-message", (incomingMessage: any) => {
+      console.log("Inside client message received");
+      if (
+        selectedChatType &&
+        selectedChatData.id === incomingMessage.channelId
+      ) {
+        console.log("Message received");
+        addMessage(incomingMessage);
+      }
+    });
+
     socket.on("connect_error", (err) => {
       console.error("Socket connection error:", err.message);
     });

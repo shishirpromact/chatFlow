@@ -10,6 +10,7 @@ import userRoutes from './routes/user.route';
 import contactRoutes from './routes/contact.route';
 import setupSocket from './socket';
 import messageRoutes from './routes/message.route';
+import groupRoutes from './routes/group.route';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/message', messageRoutes);
+app.use('/api/group', groupRoutes);
 
 const server = app.listen(config.PORT, () => {
   console.log(`Server is running on port ${config.PORT}`);

@@ -16,13 +16,16 @@ function ContactList({ contacts, isGroup = false }: ContactListProps) {
   } = useChatStore();
 
   const handleClick = (contact: any) => {
-    const isNewSelection = !selectedChatData || selectedChatData.id !== contact.id;
+    const isNewSelection =
+      !selectedChatData || selectedChatData.id !== contact.id;
 
     if (isNewSelection) {
       setSelectedChatType(isGroup ? "group" : "contact");
       setSelectedChatData(contact);
       setSelectedChatMessages([]);
     }
+
+    console.log(contact.name);
   };
 
   return (
@@ -38,13 +41,24 @@ function ContactList({ contacts, isGroup = false }: ContactListProps) {
             onClick={() => handleClick(contact)}
           >
             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white uppercase font-semibold">
-              {contact.firstName?.[0] ?? ""}{contact.lastName?.[0] ?? ""}
+              {isGroup
+                ? contact.name?.[0] ?? ""
+                : (contact.firstName?.[0] ?? "") +
+                  (contact.lastName?.[0] ?? "")}
             </div>
             <div>
               <p className="text-white font-medium truncate">
-                {`${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim()}
+                {isGroup
+                  ? contact.name
+                  : `${contact.firstName ?? ""} ${
+                      contact.lastName ?? ""
+                    }`.trim()}
               </p>
-              <p className="text-gray-400 text-sm">{contact.email}</p>
+              {!isGroup && (
+                <p className="text-gray-400 text-sm truncate">
+                  {contact.email}
+                </p>
+              )}
             </div>
           </div>
         );

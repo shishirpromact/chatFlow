@@ -11,17 +11,28 @@ function ChatHeader() {
     <div className="h-[10vh] border-b-2 border-[#2f303b] flex items-center justify-between px-20">
       <div className="flex gap-5 items-center">
         <div className="flex gap-3 items-center justify-center">
-          {
-            selectedChatType === "contact" && selectedChatData?.firstName && selectedChatData?.lastName ? (
-              <div className="flex flex-col items-center justify-center">
-                <p className="text-neutral-500 text-sm">{selectedChatData?.firstName} {selectedChatData?.lastName}</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <p className="text-neutral-500 text-sm">{selectedChatData?.email}</p>
-              </div>
-            )
-          }
+          {selectedChatType === "contact" &&
+          selectedChatData?.firstName &&
+          selectedChatData?.lastName ? (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-neutral-500 text-sm">
+                {selectedChatData?.firstName} {selectedChatData?.lastName}
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-neutral-500 text-sm">
+                {selectedChatData?.email}
+              </p>
+            </div>
+          )}
+          {selectedChatType === "group" && selectedChatData?.name && (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-neutral-500 text-sm">
+                {selectedChatData?.name}
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex gap-3 items-center justify-center">
           <button

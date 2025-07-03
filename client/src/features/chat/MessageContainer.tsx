@@ -1,11 +1,9 @@
 import { useChatStore } from "@/store/chatStore";
-import { useUserStore } from "@/store/userStore";
 import React, { useEffect, useRef } from "react";
 import moment from "moment";
 import apiClient from "@/lib/api-client";
 
 function MessageContainer() {
-  const user = useUserStore((state) => state.user);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const selectedChatData = useChatStore((state) => state.selectedChatData);
   const selectedChatMessages = useChatStore(
@@ -31,10 +29,26 @@ function MessageContainer() {
     }
   }
 
+  async function fetchGroupMessages() {
+    try {
+      const response = await apiClient.get(
+        `/api/group/get-group-messages/${selectedChatData.id}`
+      );
+
+      if (response.data.messages) {
+        setSelectedChatMessages(response.data.messages);
+      }
+    } catch (error) {
+      console.log("Error fetching messages", error);
+    }
+  }
+
   useEffect(() => {
     if (selectedChatData.id) {
       if (selectedChatType === "contact") {
         fetchMessages();
+      } else if (selectedChatType === "group") {
+        fetchGroupMessages();
       }
     }
   }, [selectedChatData, selectedChatType, setSelectedChatMessages]);
@@ -48,6 +62,25 @@ function MessageContainer() {
       <div
         className={
           message.sender === selectedChatData.id
+            ? "text-left max-w-[70%]"
+            : "text-right max-w-[70%]"
+        }
+      >
+        <div className="bg-white text-black p-2 rounded-lg">
+          {message.content}
+        </div>
+        <div className="text-xs text-gray-600">
+          {moment(message.timeStamp).format("LT")}
+        </div>
+      </div>
+    );
+  };
+
+  const renderGroupMessages = (message: any) => {
+    return (
+      <div
+        className={
+          message.senderId === selectedChatData.id
             ? "text-left max-w-[70%]"
             : "text-right max-w-[70%]"
         }
@@ -77,6 +110,7 @@ function MessageContainer() {
             </div>
           )}
           {selectedChatType === "contact" && renderDMMessages(message)}
+          {selectedChatType === "group" && renderGroupMessages(message)}
         </div>
       );
     });

@@ -17,6 +17,8 @@ function ContactsContainer() {
   const setDirectMessagesContacts = useChatStore(
     (state) => state.setDirectMessagesContacts
   );
+  const channels = useChatStore((state) => state.channels);
+  const setChannels = useChatStore((state) => state.setChannels);
 
   useEffect(() => {
     async function fetchDMContacts() {
@@ -30,7 +32,19 @@ function ContactsContainer() {
       }
     }
 
+    async function fetchUserChannels() {
+      try {
+        const response = await apiClient.get("/api/group/get-user-groups");
+        if (response.data.groups) {
+          setChannels(response.data.groups);
+        }
+      } catch (error) {
+        console.log("Error fetching ");
+      }
+    }
+
     fetchDMContacts();
+    fetchUserChannels();
   }, []);
 
   return (
@@ -56,6 +70,9 @@ function ContactsContainer() {
         <div className="flex items-center justify-between pr-10">
           <Title text={"Group Chats"} />
           <NewGroup />
+        </div>
+        <div className="max-h-[40vh] overflow-y-auto scrollbar-hidden">
+          <ContactList contacts={channels} isGroup={true} />
         </div>
       </div>
 

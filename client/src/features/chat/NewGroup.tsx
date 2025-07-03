@@ -9,7 +9,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -27,6 +26,7 @@ function NewGroup() {
   const setSelectedChatData = useChatStore(
     (state) => state.setSelectedChatData
   );
+  const addChannel = useChatStore((state) => state.addChannels);
 
   const [openNewChannelModal, setOpenNewChannelModal] = useState(false);
   const [searchedContacts, setSearchedContacts] = useState([]);
@@ -48,22 +48,25 @@ function NewGroup() {
     fetchContacts();
   }, []);
 
-  //   search contacts in debounced manner
-  const searchContacts = async (searchTerm: string) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
+  const createGroup = async () => {
+    try {
+      if (channelName.length > 0 && selectedContacts.length > 0) {
+        const response = await apiClient.post("/api/group/create-group", {
+          name: channelName,
+          members: selectedContacts.map((contact: any) => contact.value),
+        });
+
+        if (response.status === 201) {
+          setChannelName("");
+          setSelectedContacts([]);
+          setOpenNewChannelModal(false);
+          addChannel(response.data.channel);
+        }
+      }
+    } catch (error) {
+      console.log("Error creating group", error);
     }
-
-    timerRef.current = setTimeout(async () => {
-      const response = await apiClient.post("/api/contact/search", {
-        searchTerm,
-      });
-      console.log(response.data);
-      setSearchedContacts(response.data.contacts);
-    }, 1000);
   };
-
-  const createGroup = async () => {};
 
   return (
     <>

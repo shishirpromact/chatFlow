@@ -12,7 +12,7 @@ function ChatScreen() {
   return (
     <div className="flex h-[100vh] text-white overflow-hidden">
       <ContactsContainer />
-      {selectedChatType === "contact" ? (
+      {selectedChatType === "contact" || selectedChatType === "group" ? (
         <ChatContainer />
       ) : (
         <EmptyChatContainer />
