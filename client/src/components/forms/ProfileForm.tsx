@@ -18,9 +18,11 @@ import {
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/userStore";
 
 export default function ProfileForm() {
   const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
   const form = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -56,6 +58,7 @@ export default function ProfileForm() {
     try {
       const response = await apiClient.patch("/api/user/update-profile", data);
       if (response.status === 200) {
+        setUser(response.data.user);
         toast.success("Profile updated successfully!");
         router.push("/chat");
       }

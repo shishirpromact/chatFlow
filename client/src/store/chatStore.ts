@@ -13,8 +13,10 @@ interface ChatState {
   setDirectMessagesContacts: (contacts: any[]) => void;
   setChannels: (channels: any[]) => void;
   addChannels: (channel: any) => void;
+  removeChannel: (channelId: string) => void;
   closeChat: () => void;
   addMessage: (message: any) => void;
+  resetChatStore: () => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -35,6 +37,10 @@ export const useChatStore = create<ChatState>()(
       addChannels: (channel) =>
         set((state) => ({
           channels: [...state.channels, channel],
+        })),
+      removeChannel: (channelId) =>
+        set((state) => ({
+          channels: state.channels.filter((c) => c.id !== channelId),
         })),
       closeChat: () =>
         set({
@@ -59,6 +65,14 @@ export const useChatStore = create<ChatState>()(
             },
           ],
         })),
+      resetChatStore: () =>
+        set({
+          selectedChatType: null,
+          selectedChatData: null,
+          selectedChatMessages: [],
+          directMessagesContacts: [],
+          channels: [],
+        }),
     }),
     {
       name: "chatFlow-chat-storage",

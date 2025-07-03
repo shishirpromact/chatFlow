@@ -18,7 +18,6 @@ export default function MessageBar() {
   useSocketChat();
 
   const handleSendMessage = () => {
-    console.log("inside send message");
     if (!message.trim() || !user || !selectedChatData) return;
 
     if (selectedChatType === "contact") {
@@ -26,12 +25,14 @@ export default function MessageBar() {
         sender: user.id,
         content: message,
         recipient: selectedChatData.id,
+        senderName: `${user.firstName} ${user.lastName}`,
       });
     } else if (selectedChatType === "group") {
       socket.emit("send-channel-message", {
         sender: user.id,
         content: message,
         channelId: selectedChatData.id,
+        senderName: `${user.firstName} ${user.lastName}`,
       });
     }
 

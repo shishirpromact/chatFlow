@@ -13,7 +13,6 @@ const setupSocket = (server: any) => {
   const userSocketMap = new Map();
 
   const sendMessage = async (message: any) => {
-    console.log('I am at the sendMessage function');
     const senderSocketId = userSocketMap.get(message.sender);
     const recipientSocketId = userSocketMap.get(message.recipient);
 
@@ -22,6 +21,7 @@ const setupSocket = (server: any) => {
         senderId: message.sender,
         recipientId: message.recipient,
         content: message.content,
+        senderName: message.senderName,
       },
     });
 
@@ -44,66 +44,8 @@ const setupSocket = (server: any) => {
     }
   };
 
-  //   const sendChannelMessage = async (message: any) => {
-  //   const { channelId, sender, content } = message;
-
-  //   // 1. Create the new message
-  //   const createdMessage = await prisma.message.create({
-  //     data: {
-  //       senderId: sender,
-  //       content: content,
-  //       channelId: channelId,
-  //     },
-  //   });
-
-  //   // 2. Fetch enriched message with sender and channel members
-  //   const messageData = await prisma.message.findUnique({
-  //     where: {
-  //       id: createdMessage.id,
-  //     },
-  //     include: {
-  //       sender: {
-  //         select: {
-  //           id: true,
-  //           firstName: true,
-  //           lastName: true,
-  //           image: true,
-  //         },
-  //       },
-  //       channel: {
-  //         include: {
-  //           members: true,
-  //           admin: true,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (!messageData || !messageData.channel) return;
-
-  //   const finalData = {
-  //     ...messageData,
-  //     channelId: channelId,
-  //   };
-
-  //   const channel = messageData.channel;
-
-  //   // 3. Emit to all members (excluding duplicates)
-  //   const allRecipients = new Set<string>();
-
-  //   channel.members.forEach((member) => allRecipients.add(member.id));
-  //   allRecipients.add(channel.admin.id); // Ensure admin is included
-
-  //   allRecipients.forEach((userId) => {
-  //     const socketId = userSocketMap.get(userId);
-  //     if (socketId) {
-  //       io.to(socketId).emit("receive-channel-message", finalData);
-  //     }
-  //   });
-  // };
-
   const sendChannelMessage = async (message: any) => {
-    const { channelId, sender, content } = message;
+    const { channelId, sender, content, senderName } = message;
 
     // 1. Create message
     const createdMessage = await prisma.message.create({
@@ -111,6 +53,7 @@ const setupSocket = (server: any) => {
         senderId: sender,
         content: content,
         channelId: channelId,
+        senderName: senderName,
       },
     });
 

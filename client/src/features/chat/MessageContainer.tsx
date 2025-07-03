@@ -63,6 +63,7 @@ function MessageContainer() {
 
   const renderMessage = (message: any) => {
     const isSender = message.senderId === user?.id;
+    const isGroup = selectedChatType === "group";
 
     return (
       <div
@@ -71,6 +72,13 @@ function MessageContainer() {
           isSender ? "items-end" : "items-start"
         }`}
       >
+        {/* Show senderName only in group chat and for received messages */}
+        {!isSender && isGroup && message.senderName && (
+          <div className="text-xs text-gray-400 mb-1 pl-2">
+            {message.senderName}
+          </div>
+        )}
+
         <div
           className={`max-w-[70%] px-4 py-2 rounded-xl text-sm shadow-md ${
             isSender
@@ -80,6 +88,7 @@ function MessageContainer() {
         >
           {message.content}
         </div>
+
         <div
           className={`text-xs text-gray-400 mt-1 ${
             isSender ? "text-right pr-1" : "text-left pl-1"

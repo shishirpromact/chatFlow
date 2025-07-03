@@ -1,6 +1,7 @@
 "use client";
 
 import apiClient from "@/lib/api-client";
+import { useChatStore } from "@/store/chatStore";
 import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -11,6 +12,7 @@ function ProfileInfo() {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
+  const resetChatStore = useChatStore((state) => state.resetChatStore);
 
   const handleEditProfile = async () => {
     router.push("/profile");
@@ -20,6 +22,7 @@ function ProfileInfo() {
     const response = await apiClient.post("/api/auth/logout");
     if (response.status === 200) {
       setUser(null);
+      resetChatStore();
       router.push("/");
       toast.success("Logged out successfully");
     }
