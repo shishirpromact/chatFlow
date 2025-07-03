@@ -17,9 +17,11 @@ import {
 } from "@/components/ui/form";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
 
 export default function LoginForm() {
   const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -33,6 +35,7 @@ export default function LoginForm() {
     try {
       const response = await apiClient.post("/api/auth/login", data);
       if (response.data.user.id) {
+        setUser(response.data.user);
         if (response.data.user.profileSetup) {
           router.push("/chat");
         } else {
