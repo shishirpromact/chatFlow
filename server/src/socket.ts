@@ -13,7 +13,6 @@ const setupSocket = (server: any) => {
   const userSocketMap = new Map();
 
   const sendMessage = async (message: any) => {
-    console.log('I am at the sendMessage function');
     const senderSocketId = userSocketMap.get(message.sender);
     const recipientSocketId = userSocketMap.get(message.recipient);
 
@@ -22,6 +21,7 @@ const setupSocket = (server: any) => {
         senderId: message.sender,
         recipientId: message.recipient,
         content: message.content,
+        senderName: message.senderName,
       },
     });
 
@@ -42,6 +42,65 @@ const setupSocket = (server: any) => {
     if (senderSocketId) {
       io.to(senderSocketId).emit('receiveMessage', messageData);
     }
+  };
+
+  const sendChannelMessage = async (message: any) => {
+    const { channelId, sender, content, senderName } = message;
+
+    // 1. Create message
+    const createdMessage = await prisma.message.create({
+      data: {
+        senderId: sender,
+        content: content,
+        channelId: channelId,
+        senderName: senderName,
+      },
+    });
+
+    // 2. Fetch enriched message
+    const messageData = await prisma.message.findUnique({
+      where: { id: createdMessage.id },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            image: true,
+          },
+        },
+        channel: {
+          include: {
+            members: true,
+            admin: true,
+          },
+        },
+      },
+    });
+
+    if (!messageData || !messageData.channel) return;
+
+    const finalData = {
+      ...messageData,
+      channelId: channelId,
+    };
+
+    const { members, admin } = messageData.channel;
+
+    // 3. Build unique recipient set
+    const allRecipients = new Set<string>();
+    members.forEach((member) => allRecipients.add(member.id));
+    if (!allRecipients.has(admin.id)) {
+      allRecipients.add(admin.id);
+    }
+
+    // 4. Emit to all recipients
+    allRecipients.forEach((userId) => {
+      const socketId = userSocketMap.get(userId);
+      if (socketId) {
+        io.to(socketId).emit('receive-channel-message', finalData);
+      }
+    });
   };
 
   const disconnect = (socket: any) => {
@@ -65,6 +124,7 @@ const setupSocket = (server: any) => {
     }
 
     socket.on('sendMessage', sendMessage);
+    socket.on('send-channel-message', sendChannelMessage);
     socket.on('disconnect', () => disconnect(socket));
   });
 };

@@ -9,7 +9,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -38,11 +37,15 @@ function NewDm() {
       clearTimeout(timerRef.current);
     }
 
+    if (!searchTerm.trim()) {
+      setSearchedContacts([]);
+      return;
+    }
+
     timerRef.current = setTimeout(async () => {
       const response = await apiClient.post("/api/contact/search", {
         searchTerm,
       });
-      console.log(response.data);
       setSearchedContacts(response.data.contacts);
     }, 1000);
   };
@@ -90,7 +93,12 @@ function NewDm() {
                   className="flex gap-3 items-center cursor-pointer"
                   onClick={() => selectContact(contact)}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#3b3c4b] text-white flex items-center justify-center text-sm font-semibold uppercase">
+                      {contact.firstName &&
+                        contact.lastName &&
+                        `${contact.firstName[0]}${contact.lastName[0]}`}
+                    </div>
                     <span>
                       {contact.firstName && contact.lastName
                         ? `${contact.firstName} ${contact.lastName}`

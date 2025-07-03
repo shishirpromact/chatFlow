@@ -20,9 +20,11 @@ import {
 } from "@/components/ui/form";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
 
 export default function RegisterForm() {
   const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),

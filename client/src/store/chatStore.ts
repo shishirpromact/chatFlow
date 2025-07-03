@@ -6,12 +6,17 @@ interface ChatState {
   selectedChatData: any;
   selectedChatMessages: any[];
   directMessagesContacts: any[];
+  channels: any[];
   setSelectedChatType: (type: any) => void;
   setSelectedChatData: (data: any) => void;
   setSelectedChatMessages: (messages: any[]) => void;
-  setDirectMessagesContacts: (contacts: any) => void;
+  setDirectMessagesContacts: (contacts: any[]) => void;
+  setChannels: (channels: any[]) => void;
+  addChannels: (channel: any) => void;
+  removeChannel: (channelId: string) => void;
   closeChat: () => void;
   addMessage: (message: any) => void;
+  resetChatStore: () => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -21,12 +26,22 @@ export const useChatStore = create<ChatState>()(
       selectedChatData: null,
       selectedChatMessages: [],
       directMessagesContacts: [],
+      channels: [],
       setSelectedChatType: (type) => set({ selectedChatType: type }),
       setSelectedChatData: (data) => set({ selectedChatData: data }),
       setSelectedChatMessages: (messages) =>
         set({ selectedChatMessages: messages }),
       setDirectMessagesContacts: (contacts) =>
         set({ directMessagesContacts: contacts }),
+      setChannels: (channels) => set({ channels }),
+      addChannels: (channel) =>
+        set((state) => ({
+          channels: [...state.channels, channel],
+        })),
+      removeChannel: (channelId) =>
+        set((state) => ({
+          channels: state.channels.filter((c) => c.id !== channelId),
+        })),
       closeChat: () =>
         set({
           selectedChatType: null,
@@ -50,6 +65,14 @@ export const useChatStore = create<ChatState>()(
             },
           ],
         })),
+      resetChatStore: () =>
+        set({
+          selectedChatType: null,
+          selectedChatData: null,
+          selectedChatMessages: [],
+          directMessagesContacts: [],
+          channels: [],
+        }),
     }),
     {
       name: "chatFlow-chat-storage",

@@ -14,15 +14,13 @@ export const useSocketChat = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Set userId as query param and connect
-    socket.io.opts.query = { userId: user.id };
-    socket.connect();
+    // Prevent duplicate connections
+    if (!socket.connected) {
+      socket.io.opts.query = { userId: user.id };
+      socket.connect();
+    }
 
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("receiveMessage", (incomingMessage: any) => {
+    const handleDirectMessage = (incomingMessage: any) => {
       if (
         selectedChatType === "contact" &&
         (incomingMessage.sender.id === selectedChatData?.id ||
@@ -30,6 +28,22 @@ export const useSocketChat = () => {
       ) {
         addMessage(incomingMessage);
       }
+    };
+
+    const handleGroupMessage = (incomingMessage: any) => {
+      if (
+        selectedChatType === "group" &&
+        selectedChatData?.id === incomingMessage.channelId
+      ) {
+        addMessage(incomingMessage);
+      }
+    };
+
+    socket.on("receiveMessage", handleDirectMessage);
+    socket.on("receive-channel-message", handleGroupMessage);
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
     });
 
     socket.on("connect_error", (err) => {
@@ -37,8 +51,8 @@ export const useSocketChat = () => {
     });
 
     return () => {
-      socket.off("receiveMessage");
-      socket.disconnect();
+      socket.off("receiveMessage", handleDirectMessage);
+      socket.off("receive-channel-message", handleGroupMessage);
     };
   }, [user, selectedChatType, selectedChatData, addMessage]);
 };

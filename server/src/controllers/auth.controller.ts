@@ -169,3 +169,23 @@ export const getUserInfo = async (
     console.log(error);
   }
 };
+
+export const logout = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    response.cookie('jwt', '', {
+      secure: true,
+      maxAge: 0,
+      sameSite: 'none',
+    });
+
+    response.status(200).json({
+      message: 'User logged out successfully',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

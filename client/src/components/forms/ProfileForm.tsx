@@ -17,8 +17,12 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/userStore";
 
 export default function ProfileForm() {
+  const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
   const form = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -29,7 +33,6 @@ export default function ProfileForm() {
     },
   });
 
-  // ✅ Load profile data on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -54,8 +57,11 @@ export default function ProfileForm() {
   const onSubmit = async (data: ProfileSchema) => {
     try {
       const response = await apiClient.patch("/api/user/update-profile", data);
-      console.log(response.data);
-      toast.success("Profile updated successfully!");
+      if (response.status === 200) {
+        setUser(response.data.user);
+        toast.success("Profile updated successfully!");
+        router.push("/chat");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to update profile");
