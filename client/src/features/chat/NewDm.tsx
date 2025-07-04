@@ -25,6 +25,12 @@ function NewDm() {
   const setSelectedChatData = useChatStore(
     (state) => state.setSelectedChatData
   );
+  const directMessagesContacts = useChatStore(
+    (state) => state.directMessagesContacts
+  );
+  const setDirectMessagesContacts = useChatStore(
+    (state) => state.setDirectMessagesContacts
+  );
 
   const [openNewContactModal, setOpenNewContactModal] = useState(false);
   const [searchedContacts, setSearchedContacts] = useState([]);
@@ -50,11 +56,13 @@ function NewDm() {
     }, 1000);
   };
 
+  //   select contact and add to direct messages contacts
   const selectContact = (contact: any) => {
     setOpenNewContactModal(false);
     setSelectedChatType("contact");
     setSelectedChatData(contact);
     setSearchedContacts([]);
+    setDirectMessagesContacts([...directMessagesContacts, contact]);
   };
 
   return (

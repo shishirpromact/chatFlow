@@ -129,3 +129,27 @@ export const getGroupMessages = async (
     response.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+export const deleteGroup = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { channelId } = request.params as { channelId: string };
+
+    const deletedGroup = await prisma.channel.delete({
+      where: {
+        id: channelId,
+      },
+    });
+
+    response.status(201).json({
+      message: 'Group deleted successfully',
+      group: deletedGroup,
+    });
+  } catch (error) {
+    console.error('Error deleting group', error);
+    response.status(500).json({ message: 'Internal Server Error' });
+  }
+};

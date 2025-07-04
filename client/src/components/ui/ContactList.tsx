@@ -14,7 +14,6 @@ function ContactList({ contacts, isGroup = false }: ContactListProps) {
   const {
     selectedChatData,
     setSelectedChatData,
-    selectedChatType,
     setSelectedChatType,
     setSelectedChatMessages,
     removeChannel,
@@ -31,8 +30,6 @@ function ContactList({ contacts, isGroup = false }: ContactListProps) {
       setSelectedChatData(contact);
       setSelectedChatMessages([]);
     }
-
-    console.log(contact.name);
   };
 
   const handleDelete = (channelId: string) => {
@@ -79,7 +76,7 @@ function ContactList({ contacts, isGroup = false }: ContactListProps) {
             {isAdmin && (
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering handleClick
+                  e.stopPropagation(); // Prevent page reloads due to submit button click
                   handleDelete(contact.id);
                 }}
                 className="text-red-500 hover:text-red-400"
